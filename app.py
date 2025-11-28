@@ -90,6 +90,33 @@ def get_notes():
     return jsonify(notes_store), 200
 
 
+@app.route('/notes/delete/<int:note_id>', methods=['DELETE'])
+def delete_note(note_id):
+    """
+    Delete a note by ID
+    Returns: Success message or error
+    """
+    global notes_store
+    
+    # Find the note with the given ID
+    note_index = None
+    for i, note in enumerate(notes_store):
+        if note['id'] == note_id:
+            note_index = i
+            break
+    
+    if note_index is None:
+        return jsonify({"error": f"Note with id {note_id} not found"}), 404
+    
+    # Remove the note
+    deleted_note = notes_store.pop(note_index)
+    
+    # Save to file for persistence
+    save_notes()
+    
+    return jsonify({"message": "Note deleted successfully", "deleted_note": deleted_note}), 200
+
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
